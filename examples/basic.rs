@@ -17,6 +17,7 @@ fn main() {
         kal.text_to_speech("I'm doing just fine!"),
     ];
 
+    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     for data in conversation {
         // Write data to WAV format
         let mut wav_data: Vec<u8> = Vec::new();
@@ -30,7 +31,6 @@ fn main() {
         wav_writer.finalize().expect("Failed to finalize wav");
     
         // Play on the default audio device
-        let (_stream, stream_handle) = OutputStream::try_default().unwrap();
         let source = Decoder::new(Cursor::new(wav_data)).unwrap();
         stream_handle.play_raw(source.convert_samples()).expect("Failed to play");
     

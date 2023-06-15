@@ -69,6 +69,8 @@ impl Voice {
     pub fn text_to_speech(&self, text: &str) -> Wave {
         let c_text = CString::new(text).expect("Failed to construct cstr");
         unsafe {
+            assert!(!self.voice.is_null());
+
             if let Some(duration_stretch) = self.duration_stretch {
                 flite_feat_set_float((*self.voice).features, cstr!("duration_stretch").as_ptr(), duration_stretch);
             }
@@ -80,6 +82,7 @@ impl Voice {
             }
 
             let c_wave: *mut cst_wave = flite_text_to_wave(c_text.as_ptr(), self.voice);
+            assert!(!c_wave.is_null());
 
             let wave = Wave {
                 sample_rate: (*c_wave).sample_rate as usize,
@@ -94,11 +97,12 @@ impl Voice {
         }
     }
 }
-impl Drop for Voice {
-    fn drop(&mut self) {
-        unsafe { delete_voice(self.voice) }
-    }
-}
+// FIXME: Calling delete_voice here causes memory errors, but without it we will leak (I assume)
+// impl Drop for Voice {
+//     fn drop(&mut self) {
+//         unsafe { delete_voice(self.voice) }
+//     }
+// }
 
 #[derive(Clone, Debug)]
 pub struct Wave {
