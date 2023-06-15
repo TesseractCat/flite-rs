@@ -1,0 +1,3 @@
+[submodule "flite"]
+	path = flite
+	url = git@github.com:festvox/flite.git
